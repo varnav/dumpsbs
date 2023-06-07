@@ -1,12 +1,15 @@
 # DumpSBS
 
-Golang tool to connect to ADS-B receivers like [readsb](https://github.com/wiedehopf/readsb) or [dump1090](https://github.com/flightaware/dump1090) via [SBS protocol](http://woodair.net/sbs/article/barebones42_socket_data.htm) and dump data to files.
+Golang tool to connect to ADS-B receivers like [readsb](https://github.com/wiedehopf/readsb) or [dump1090](https://github.com/flightaware/dump1090), or services like [ADS-B Hub](https://www.adsbhub.org/howtogetdata.php) via [SBS protocol](http://woodair.net/sbs/article/barebones42_socket_data.htm) and dump data to files.
 New file will be created hourly.
 
-Add this to cron.daily to compress those files:
+`netcat` can do basic dumping fine, but this tool also does filtering and dump file rotation
+
+Add this to `/etc/cron.hourly/` to compress those files:
 
 ```sh
-find /opt/dumpsbs/logs -mtime +1 -name '*.csv' -exec xz -3 {} \;
+#!/bin/sh
+find /opt/dumpsbs/logs -mmin +90 -name '*.csv' -exec zstd -9 --rm {} \;
 ```
 
 ```go
@@ -34,3 +37,7 @@ type SBS struct {
 	IsOnGround        int    // Flag to indicate the ground squat switch is active
 }
 ```
+
+## See also
+
+http://jasonplayne.com:8080/ - raw packet decoder
