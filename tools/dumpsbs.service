@@ -1,0 +1,24 @@
+[Unit]
+Description=dumpsbs service
+ConditionPathExists=/opt/dumpsbs
+After=network-online.target readsb.service
+Wants=network-online.target
+ 
+[Service]
+Type=simple
+User=dumpsbs
+Group=nogroup
+LimitNOFILE=1024
+
+#Restart=on-failure
+Restart=always
+
+WorkingDirectory=/opt/dumpsbs
+ExecStart=/opt/dumpsbs/dumpsbs -host 127.0.0.1:30003 -output /opt/dumpsbs/logs
+# make sure log directory exists and perms set
+ExecStartPre=+/bin/mkdir -p /opt/dumpsbs/logs
+ExecStartPre=+/bin/chown dumpsbs /opt/dumpsbs/logs
+ExecStartPre=+/bin/chmod 755 /opt/dumpsbs/logs
+ 
+[Install]
+WantedBy=multi-user.target
